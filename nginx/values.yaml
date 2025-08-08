@@ -2,7 +2,7 @@ replicaCount: 3
 
 image:
   repository: ap-tokyo-1.ocir.io/nrsswwev6ppj/ocir-private
-  tag: green-nginx-latest
+  tag: blue-nginx-latest
   pullPolicy: IfNotPresent
   pullSecrets:
     - name: ocir-secret
