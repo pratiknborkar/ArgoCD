@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  repository: iad.ocir.io/yourtenancy/yourrepo/nginx
+  repository: ap-tokyo-1.ocir.io/nrsswwev6ppj/ocir-private:blue-nginx-latest
   tag: stable
   pullPolicy: IfNotPresent
   pullSecrets:
