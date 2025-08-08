@@ -2,10 +2,10 @@ replicaCount: 3
 
 image:
   repository: ap-tokyo-1.ocir.io/nrsswwev6ppj/ocir-private
-  pullPolicy: IfNotPresent
   tag: blue-nginx-latest
+  pullPolicy: IfNotPresent
   pullSecrets:
-    - name: ocir-secret  # your image pull secret
+    - name: ocir-secret
 
 imagePullSecrets:
   - name: ocir-secret
@@ -28,6 +28,11 @@ securityContext: {}
 service:
   type: LoadBalancer
   port: 80
+
+ingress:
+  enabled: false
+
+resources: {}
 
 livenessProbe:
   httpGet:
