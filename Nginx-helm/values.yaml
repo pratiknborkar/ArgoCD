@@ -1,9 +1,11 @@
 replicaCount: 2
 
 image:
-  repository: nginx
+  repository: iad.ocir.io/yourtenancy/yourrepo/nginx
   tag: stable
   pullPolicy: IfNotPresent
+  pullSecrets:
+    - name: ocir-secret  # your image pull secret
 
 service:
   type: ClusterIP
