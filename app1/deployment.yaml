@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-web
+  labels:
+    app: python-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: python-web
+  template:
+    metadata:
+      labels:
+        app: python-web
+    spec:
+      containers:
+      - name: python-web
+        image: ap-tokyo-1.ocir.io/nrsswwev6ppj/ocir-private:python-app1
+        ports:
+        - containerPort: 5000
