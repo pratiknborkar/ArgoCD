@@ -3,7 +3,7 @@ name: Build and Push Python Web App to OCIR
 on:
   push:
     branches:
-      - main  # change if needed
+      - main
 
 jobs:
   build-and-push:
@@ -14,7 +14,6 @@ jobs:
       NAMESPACE: nrsswwev6ppj
       REPO: ocir-private
       IMAGE_TAG: python-web-latest
-      OCI_USERNAME: nrsswwev6ppj/oracleidentitycloudservice/pratik.borkar@oracle.com'
 
     steps:
       - name: Checkout Code
@@ -22,9 +21,9 @@ jobs:
 
       - name: Log in to OCIR
         run: |
-          echo "${{ secrets.OCI_AUTH_TOKEN }}" | \
-          docker login $REGISTRY \
-            -u "${NAMESPACE}/${OCI_USERNAME}" \
+          echo "${{ secrets.OCI_AUTH_TOKEN }}" | docker login \
+            $REGISTRY \
+            -u "${NAMESPACE}/${{ secrets.OCI_USERNAME }}" \
             --password-stdin
 
       - name: Build Docker Image
@@ -36,7 +35,7 @@ jobs:
       - name: Push Docker Image
         run: docker push $IMAGE
 
-      # Optional step: Update deployment.yaml for ArgoCD
+      # Optional: Auto-update Deployment for ArgoCD
       - name: Update Deployment Image
         run: |
           sed -i "s|image: .*|image: ${IMAGE}|g" deployment.yaml
