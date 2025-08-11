@@ -1,47 +1,49 @@
-name: Build and Push to OCIR
+name: Build and Push Python Web App to OCIR
 
 on:
   push:
     branches:
-      - main  # Change if your branch name is different
+      - main
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
+    env:
+      REGISTRY: ap-tokyo-1.ocir.io
+      NAMESPACE: nrsswwev6ppj
+      REPO: ocir-private
+      IMAGE_TAG: python-web-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
 
       - name: Log in to OCIR
         run: |
           echo "${{ secrets.OCI_PRIVATE_KEY }}" > private.pem
           chmod 600 private.pem
+          AUTH_TOKEN=$(openssl dgst -sha256 -sign private.pem <(echo -n '') | base64)
+
           docker login \
             -u "${{ secrets.OCI_TENANCY_OCID }}/${{ secrets.OCI_USER_OCID }}/${{ secrets.OCI_FINGERPRINT }}" \
-            -p "$(openssl dgst -sha256 -sign private.pem <(echo -n '') | base64)" \
-            ${REGISTRY}
-        env:
-          REGISTRY: ap-tokyo-1.ocir.io
+            -p "${AUTH_TOKEN}" \
+            $REGISTRY
 
       - name: Build Docker Image
         run: |
-          IMAGE=${REGISTRY}/${{ secrets.OCI_TENANCY_OCID }}/python-web:$(date +%Y%m%d%H%M%S)
+          IMAGE=$REGISTRY/$NAMESPACE/$REPO:$IMAGE_TAG
           echo "IMAGE=${IMAGE}" >> $GITHUB_ENV
           docker build -t $IMAGE .
 
       - name: Push Docker Image
         run: docker push $IMAGE
 
-      # Optional: Update Kubernetes manifest for ArgoCD auto-sync
-      - name: Update Deployment Image
+      - name: Update Deployment.yaml for ArgoCD
         run: |
-          sed -i "s|<your-ocir-repo>/python-web:latest|$IMAGE|g" deployment.yaml
+          sed -i "s|image: .*|image: ${IMAGE}|g" deployment.yaml
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           git add deployment.yaml
-          git commit -m "Update image to $IMAGE"
-          git push
+          git commit -m "Update image to ${IMAGE}" || echo "No changes to commit"
+          git push || echo "No changes to push"
