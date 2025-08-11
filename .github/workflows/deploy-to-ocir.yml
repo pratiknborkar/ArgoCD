@@ -17,13 +17,12 @@ jobs:
 
       - name: Log in to OCIR
         run: |
-          echo "${{ secrets.OCI_PRIVATE_KEY }}" > private.pem
-          chmod 600 private.pem
-          AUTH_TOKEN=$(openssl dgst -sha256 -sign private.pem <(echo -n '') | base64)
           docker login \
-            -u "${{ secrets.OCI_TENANCY_OCID }}/${{ secrets.OCI_USER_OCID }}/${{ secrets.OCI_FINGERPRINT }}" \
-            -p "${AUTH_TOKEN}" \
+            -u "${{ secrets.OCI_NAMESPACE }}/$OCI_USERNAME" \
+            -p "${{ secrets.OCI_AUTH_TOKEN }}" \
             ap-tokyo-1.ocir.io
+        env:
+          OCI_USERNAME: <your-oci-username>  # Example: pratik.borkar@oracle.com
 
       - name: Build Docker Image
         run: |
@@ -41,5 +40,5 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           git add Python-Based/deployment.yaml
-          git commit -m "Update image to ${IMAGE}"
+          git commit -m "Update image to ${IMAGE}" || echo "No changes to commit"
           git push
