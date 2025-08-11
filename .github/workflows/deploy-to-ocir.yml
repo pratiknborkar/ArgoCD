@@ -1,46 +1,48 @@
-name: Build and Push Python Web App to OCIR
+name: Build and Deploy to OCIR
 
 on:
   push:
     branches:
       - main
 
+env:
+  REGISTRY: ap-tokyo-1.ocir.io
+  NAMESPACE: nrsswwev6ppj
+  REPO: ocir-private
+  IMAGE_TAG: python-web-latest
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
-    env:
-      REGISTRY: ap-tokyo-1.ocir.io
-      NAMESPACE: nrsswwev6ppj
-      REPO: ocir-private
-      IMAGE_TAG: python-web-latest
-
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Log in to OCIR
-        run: |
-          echo "${{ secrets.OCI_AUTH_TOKEN }}" | docker login \
-            $REGISTRY \
-            -u "${NAMESPACE}/${{ secrets.OCI_USERNAME }}" \
-            --password-stdin
+        run: echo "${{ secrets.OCI_AUTH_TOKEN }}" | docker login $REGISTRY -u "${NAMESPACE}/${{ secrets.OCI_USERNAME }}" --password-stdin
 
-      - name: Build Docker Image
+      - name: Build and push Docker image from Python-Based folder
         run: |
           IMAGE=$REGISTRY/$NAMESPACE/$REPO:$IMAGE_TAG
           echo "IMAGE=${IMAGE}" >> $GITHUB_ENV
+          cd Python-Based
           docker build -t $IMAGE .
+          docker push $IMAGE
 
-      - name: Push Docker Image
-        run: docker push $IMAGE
+  update-manifests:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
+      - name: Checkout manifests repo
+        uses: actions/checkout@v4
+        with:
+          repository: your-org/your-manifests-repo
+          token: ${{ secrets.PAT_TOKEN }}
 
-      # Optional: Auto-update deployment.yaml for ArgoCD
-      - name: Update Deployment Image
+      - name: Update deployment image
         run: |
           sed -i "s|image: .*|image: ${IMAGE}|g" deployment.yaml
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-          git add deployment.yaml
-          git commit -m "Update image to ${IMAGE}" || echo "No changes to commit"
-          git push || echo "No changes to push"
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git commit -am "Update image to ${IMAGE}" || echo "No changes to commit"
+          git push
