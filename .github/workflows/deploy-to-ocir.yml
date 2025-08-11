@@ -3,9 +3,9 @@ name: Build and Push Python Web App to OCIR
 on:
   push:
     branches:
-      - main  # change if your main branch is different
+      - main
     paths:
-      - Python-Based/**  # only trigger when files in Python-Based folder change
+      - Python-Based/**
 
 jobs:
   build-and-push:
@@ -17,12 +17,10 @@ jobs:
 
       - name: Log in to OCIR
         run: |
-          docker login \
-            -u "${{ secrets.OCI_NAMESPACE }}/$OCI_USERNAME" \
-            -p "${{ secrets.OCI_AUTH_TOKEN }}" \
-            ap-tokyo-1.ocir.io
-        env:
-          OCI_USERNAME: <your-oci-username>  # Example: pratik.borkar@oracle.com
+          echo "${{ secrets.OCI_AUTH_TOKEN }}" | \
+          docker login ap-tokyo-1.ocir.io \
+            -u "${{ secrets.OCI_NAMESPACE }}/${{ secrets.OCI_USERNAME }}" \
+            --password-stdin
 
       - name: Build Docker Image
         run: |
@@ -33,7 +31,6 @@ jobs:
       - name: Push Docker Image
         run: docker push $IMAGE
 
-      # Optional: Auto-update deployment.yaml for ArgoCD
       - name: Update Deployment Image
         run: |
           sed -i "s|image: .*|image: ${IMAGE}|g" Python-Based/deployment.yaml
