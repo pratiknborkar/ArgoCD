@@ -1,14 +1,11 @@
-# Get Cluster Name
-```
-kubectl config get-contexts -o name
-```
+from flask import Flask
+import os
 
-## Then Add Cluster 
-```
-argocd cluster add "Cluster-Name"
-```
+app = Flask(__name__)
 
-## Deploy Sample Helm Application
-```
-argocd app create helm-guestbook --repo https://github.com/argoproj/argocd-example-apps.git --path helm-guestbook --dest-server https://kubernetes.default.svc --dest-namespace default
-```
+@app.route("/")
+def home():
+    return f"Hello from Kubernetes! Pod: {os.environ.get('HOSTNAME', 'unknown')}"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
