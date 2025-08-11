@@ -3,36 +3,16 @@ name: Build and Push to OCIR
 on:
   push:
     branches:
-<<<<<<< Updated upstream
-      - main
-    paths:
-      - Python-Based/**
-=======
       - main  # Change if your branch name is different
->>>>>>> Stashed changes
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-22.04
-    name: Build and Push Python Web App to OCIR
-    env:
-      OCI_USER_OCID: ${{ secrets.OCI_USER_OCID }}
-      OCI_TENANCY_OCID: ${{ secrets.OCI_TENANCY_OCID }}
-      OCI_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT }}
-      OCI_PRIVATE_KEY: ${{ secrets.OCI_PRIVATE_KEY }}
-      OCI_REGION: ${{ secrets.OCI_REGION }}
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-<<<<<<< Updated upstream
-      - name: Log into OCIR
-        uses: oracle-actions/login-ocir@v1.3.0
-        id: login-ocir
-        with:
-          auth_token: ${{ secrets.OCI_AUTH_TOKEN }}
-=======
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -46,26 +26,16 @@ jobs:
             ${REGISTRY}
         env:
           REGISTRY: ap-tokyo-1.ocir.io
->>>>>>> Stashed changes
 
       - name: Build Docker Image
         run: |
           IMAGE=${REGISTRY}/${{ secrets.OCI_TENANCY_OCID }}/python-web:$(date +%Y%m%d%H%M%S)
           echo "IMAGE=${IMAGE}" >> $GITHUB_ENV
-          docker build -t $IMAGE -f Python-Based/Dockerfile Python-Based/
+          docker build -t $IMAGE .
 
       - name: Push Docker Image
         run: docker push $IMAGE
 
-<<<<<<< Updated upstream
-      - name: Update Deployment Image
-        run: |
-          sed -i "s|image: .*|image: ${IMAGE}|g" Python-Based/deployment.yaml
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-          git add Python-Based/deployment.yaml
-          git commit -m "Update image to ${IMAGE}" || echo "No changes to commit"
-=======
       # Optional: Update Kubernetes manifest for ArgoCD auto-sync
       - name: Update Deployment Image
         run: |
@@ -74,5 +44,4 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git add deployment.yaml
           git commit -m "Update image to $IMAGE"
->>>>>>> Stashed changes
           git push
