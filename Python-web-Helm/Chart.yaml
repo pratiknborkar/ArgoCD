@@ -1,6 +1,0 @@
-apiVersion: v2
-name: python-web
-description: A Helm chart for Python Flask web app
-type: application
-version: 0.1.0
-appVersion: "latest"
