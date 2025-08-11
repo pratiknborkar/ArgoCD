@@ -1,11 +1,15 @@
-name: Build and Push Python Web App to OCIR
+name: Build and Push to OCIR
 
 on:
   push:
     branches:
+<<<<<<< Updated upstream
       - main
     paths:
       - Python-Based/**
+=======
+      - main  # Change if your branch name is different
+>>>>>>> Stashed changes
 
 jobs:
   build-and-push:
@@ -22,21 +26,38 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+<<<<<<< Updated upstream
       - name: Log into OCIR
         uses: oracle-actions/login-ocir@v1.3.0
         id: login-ocir
         with:
           auth_token: ${{ secrets.OCI_AUTH_TOKEN }}
+=======
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to OCIR
+        run: |
+          echo "${{ secrets.OCI_PRIVATE_KEY }}" > private.pem
+          chmod 600 private.pem
+          docker login \
+            -u "${{ secrets.OCI_TENANCY_OCID }}/${{ secrets.OCI_USER_OCID }}/${{ secrets.OCI_FINGERPRINT }}" \
+            -p "$(openssl dgst -sha256 -sign private.pem <(echo -n '') | base64)" \
+            ${REGISTRY}
+        env:
+          REGISTRY: ap-tokyo-1.ocir.io
+>>>>>>> Stashed changes
 
       - name: Build Docker Image
         run: |
-          IMAGE=ap-tokyo-1.ocir.io/nrsswwev6ppj/ocir-private:python-web-latest
+          IMAGE=${REGISTRY}/${{ secrets.OCI_TENANCY_OCID }}/python-web:$(date +%Y%m%d%H%M%S)
           echo "IMAGE=${IMAGE}" >> $GITHUB_ENV
           docker build -t $IMAGE -f Python-Based/Dockerfile Python-Based/
 
       - name: Push Docker Image
         run: docker push $IMAGE
 
+<<<<<<< Updated upstream
       - name: Update Deployment Image
         run: |
           sed -i "s|image: .*|image: ${IMAGE}|g" Python-Based/deployment.yaml
@@ -44,4 +65,14 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git add Python-Based/deployment.yaml
           git commit -m "Update image to ${IMAGE}" || echo "No changes to commit"
+=======
+      # Optional: Update Kubernetes manifest for ArgoCD auto-sync
+      - name: Update Deployment Image
+        run: |
+          sed -i "s|<your-ocir-repo>/python-web:latest|$IMAGE|g" deployment.yaml
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add deployment.yaml
+          git commit -m "Update image to $IMAGE"
+>>>>>>> Stashed changes
           git push
