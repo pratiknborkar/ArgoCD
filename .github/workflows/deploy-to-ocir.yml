@@ -35,7 +35,7 @@ jobs:
       - name: Push Docker Image
         run: docker push $IMAGE
 
-      # Optional: Auto-update Deployment for ArgoCD
+      # Optional: Auto-update deployment.yaml for ArgoCD
       - name: Update Deployment Image
         run: |
           sed -i "s|image: .*|image: ${IMAGE}|g" deployment.yaml
