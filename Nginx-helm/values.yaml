@@ -4,9 +4,6 @@ image:
   repository: ap-tokyo-1.ocir.io/nrsswwev6ppj/ocir-private:nginx-latest
   tag: stable
   pullPolicy: IfNotPresent
-  pullSecrets:
-    - name: ocir-secret  # your image pull secret
-
 service:
   type: ClusterIP
   port: 80
