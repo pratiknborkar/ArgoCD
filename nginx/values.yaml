@@ -23,6 +23,11 @@ securityContext: {}
 service:
   type: LoadBalancer
   port: 80
+  annotations:
+    # OCI Flexible Load Balancer Annotations
+    service.beta.kubernetes.io/oci-load-balancer-shape: "flexible"
+    service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
+    service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "300"
 
 ingress:
   enabled: false
