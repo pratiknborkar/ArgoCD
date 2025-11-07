@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  repository: syd.ocir.io/sd7pd0bypgvo/ocir-repo:nginx-latestt
+  repository: syd.ocir.io/sd7pd0bypgvo/ocir-repo:nginx-latest
   tag: stable
   pullPolicy: IfNotPresent
 service:
