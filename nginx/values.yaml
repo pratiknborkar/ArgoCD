@@ -1,7 +1,7 @@
 replicaCount: 3
 
 image:
-  repository: ap-tokyo-1.ocir.io/nrsswwev6ppj/ocir-private
+  repository: syd.ocir.io/sd7pd0bypgvo/ocir-repo
   tag: nginx-latest
   pullPolicy: IfNotPresent
 
