@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Demo Python Docker App</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding: 2rem; background:#f7f8fb; color:#111; }
+    .card { background:white; padding:1.25rem; border-radius:12px; box-shadow: 0 6px 18px rgba(15,15,15,0.06); max-width:720px; margin: 0 auto; }
+    button { padding:0.5rem 0.9rem; border-radius:8px; border:none; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Demo Python Docker App</h1>
+    <p>Server time (UTC): <strong id="time">{{ now }}</strong></p>
+
+    <label>
+      Your name:
+      <input id="name" placeholder="Alice" />
+    </label>
+    <button id="sayHi">Say Hi</button>
+
+    <h3>Response</h3>
+    <pre id="out">Click "Say Hi" to call /api/hello</pre>
+  </div>
+
+  <script>
+    document.getElementById("sayHi").addEventListener("click", async () => {
+      const name = document.getElementById("name").value || "world";
+      const res = await fetch(`/api/hello?name=${encodeURIComponent(name)}`);
+      const j = await res.json();
+      document.getElementById("out").textContent = JSON.stringify(j, null, 2);
+      document.getElementById("time").textContent = j.time;
+    });
+  </script>
+</body>
+</html>
