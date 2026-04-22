@@ -29,6 +29,7 @@ service:
     service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
     service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "300"
     service.beta.kubernetes.io/oci-load-balancer-internal: "true"
+    service.beta.kubernetes.io/oci-load-balancer-subnet1:"ocid1.subnet.oc1.ap-sydney-1.aaaaaaaaebkze5om7ypt26z57grzggtyq2anx6xyx7ujbd774zx7tb5wf22a"
 
 ingress:
   enabled: false
